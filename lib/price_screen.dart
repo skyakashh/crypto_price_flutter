@@ -7,9 +7,33 @@ import 'package:http/http.dart';
 import 'dart:convert';
 
 
+
 class PriceScreen extends StatefulWidget {
   @override
   _PriceScreenState createState() => _PriceScreenState();
+}
+
+String cryp_name='BTC';
+int cryp_price=0;
+String init = 'Enter the crypro-currency name';
+String final_currency='INR';
+String to_disp='0 BTC = 0 INR';
+
+Future getentered_price(String name) async
+{
+  Response response = await
+  get(Uri.parse('https://rest.coinapi.io/v1/exchangerate/$name/${final_currency}?apikey=$apikey'));
+  var data=jsonDecode(response.body);
+  if(data==null)
+  {
+    cryp_price=0;
+  }
+  else {
+    var p = data['rate'];
+    print(p);
+    cryp_price=p.toInt();
+    to_disp='1 $cryp_name = $cryp_price $final_currency';
+  }
 }
 
 class _PriceScreenState extends State<PriceScreen> {
@@ -19,7 +43,7 @@ class _PriceScreenState extends State<PriceScreen> {
   int price =0,price_e=0,price_l=0;
   String showcurrency='INR';
 
-  Future getPrice(String currency) async
+  Future <void> getPrice(String currency) async
   {
       Response response = await
       get(Uri.parse('https://rest.coinapi.io/v1/exchangerate/BTC/$currency?apikey=$apikey'));
@@ -80,6 +104,7 @@ class _PriceScreenState extends State<PriceScreen> {
           getPrice_e(currenciesList[selectedIndex]);
           getPrice_l(currenciesList[selectedIndex]);
           showcurrency=currenciesList[selectedIndex];
+          final_currency=currenciesList[selectedIndex];
         });
         },
       itemExtent: 40.0,
@@ -108,6 +133,7 @@ class _PriceScreenState extends State<PriceScreen> {
                   getPrice_e(selecetedCurrency);
                   getPrice_l(selecetedCurrency);
                   showcurrency=selecetedCurrency;
+                  final_currency=selecetedCurrency;
                 });
               },
     );
@@ -188,8 +214,80 @@ class _PriceScreenState extends State<PriceScreen> {
               ),
             ),
           ),
+          Row(
+            children: [
+              Expanded(
+                flex: 9,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
+                      child: Card(
+                        color: Colors.lightBlueAccent,
+                        elevation: 5.0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+                          child: TextField(
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              icon: Icon(Icons.attach_money, color: Colors.white,),
+                              //if (cryp_price==0)
+                              hintText: init,
+                              //else hintText: '1 $cryp_name = $cryp_price $final_currency',
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10.0),
+                                ),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            onChanged: (value){
+                              //setState(() {
+                                cryp_name = value;
+                              //});
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '1 $cryp_name = $cryp_price $final_currency',
+                      style: TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+             Expanded(
+               flex: 1,
+               child:  FlatButton(
+                color: Colors.lightBlueAccent,
+               onPressed: (){
+                 setState(() {
+                   getentered_price(cryp_name);
+                   //if(cryp_price!=0)
+                     //to_disp='1 $cryp_name = $cryp_price $final_currency';
+                   });
+                 },
+
+                child: Icon(Icons.search),
+                ),
+             ),
+            ],
+          ),
           SizedBox(
-            height: Platform.isIOS ? 427.0 : 400.0,
+            height: Platform.isIOS ? 295.0 : 269.6,
           ),
           Container(
             height: 150.0,
